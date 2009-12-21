@@ -317,6 +317,23 @@ def invert(interval):
     interval.reverse()
     return res
 
+def semitones_from_shorthand(shorthand):
+    basic = {
+        '1': 0,
+        '2': 2,
+        '3': 4,
+        '4': 5,
+        '5': 7,
+        '6': 9,
+        '7': 11
+    }
+    base = basic[shorthand[-1]]
+    for x in shorthand:
+        if x == '#':
+            base += 1
+        elif x == 'b':
+            base -= 1
+    return base
 
 def determine(note1, note2, shorthand=False):
     """Names the interval between note1 and note2.
@@ -340,6 +357,18 @@ def determine(note1, note2, shorthand=False):
 >>> determine(\"C\", \"F\")
 'perfect fourth'
 }}}"""
+
+    if hasattr(note1, 'octave') and hasattr(note2, 'octave'):
+        if int(note1) > int(note2):
+            note3 = note2
+            note2 = note1
+            note1 = note3
+            del note3
+
+    if hasattr(note1, 'name'):
+        note1 = note1.name
+    if hasattr(note2, 'name'):
+        note2 = note2.name
 
     # Corner case for unisons ('A' and 'Ab', for instance)
 

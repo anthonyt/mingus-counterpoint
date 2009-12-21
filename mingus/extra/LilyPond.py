@@ -204,7 +204,11 @@ equivalent in a string."""
         result += from_Bar(bar, showkey, showtime) + ' '
         lastkey = bar.key
         lasttime = bar.meter
-    return '{ %s}' % result
+
+    clef = ''
+    if track.instrument is not None:
+        clef = '\\clef ' + track.instrument.clef
+    return '\\new Staff { %s%s}' % (clef, result)
 
 
 def from_Composition(composition):
@@ -217,8 +221,13 @@ Composition] in a string"""
         return False
     result = '\\header { title = "%s" composer = "%s" opus = "%s" } '\
          % (composition.title, composition.author, composition.subtitle)
+
+    result += '\\new StaffGroup << '
+
     for track in composition.tracks:
         result += from_Track(track) + ' '
+
+    result += '>> '
     return result[:-1]
 
 
@@ -242,7 +251,7 @@ def save_string_and_execute_LilyPond(ly_string, filename, command):
     """A helper function for to_png and to_pdf. Should not be used directly"""
 
     ly_string = '\\version "2.10.33"\n' + ly_string
-    if filename[-4] in ['.pdf' or '.png']:
+    if filename[-4:] in ['.pdf', '.png']:
         filename = filename[:-4]
     try:
         f = open(filename + '.ly', 'w')

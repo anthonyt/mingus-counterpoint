@@ -306,7 +306,7 @@ track_data and the end of track meta event."""
 
     def track_name_event(self, name):
         """Returns the bytes for a track name meta event."""
-
+        name = str(name)
         l = self.int_to_varbyte(len(name))
         return '\x00' + META_EVENT + TRACK_NAME + l + name
 

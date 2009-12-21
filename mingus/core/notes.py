@@ -185,7 +185,7 @@ def diminish(note):
         return note[:-1]
 
 
-def to_major(note):
+def relative_major(note):
     """Returns the major of `note`.
     Example:
 {{{
@@ -196,7 +196,7 @@ def to_major(note):
     return intervals.minor_third(note)
 
 
-def to_minor(note):
+def relative_minor(note):
     """Returns the minor of note.
     Example:
 {{{

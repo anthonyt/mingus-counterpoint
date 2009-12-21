@@ -40,8 +40,9 @@ examples)."""
 
     name = 'Instrument'
     range = (Note('C', 0), Note('C', 8))
-    clef = 'bass and treble'
+    clef = 'treble'
     tuning = None  # optional StringTuning object
+    can_play_rests = True
 
     def __init__(self):
         pass
@@ -82,6 +83,10 @@ so, `False` otherwise"""
         """Will test if the notes lie within the range of the instrument. Returns \
 `True` if so, `False` otherwise."""
 
+        if notes is None and self.can_play_rests:
+            # asking if we can play rests
+            return True
+
         if hasattr(notes, 'notes'):
             notes = notes.notes
         if type(notes) != list:
@@ -110,7 +115,7 @@ class Guitar(Instrument):
 
     name = 'Guitar'
     range = (Note('E', 3), Note('E', 7))
-    clef = 'Treble'
+    clef = 'treble'
 
     def __init__(self):
         Instrument.__init__(self)

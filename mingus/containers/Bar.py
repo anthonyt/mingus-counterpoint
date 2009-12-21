@@ -89,7 +89,30 @@ enough room for a note of that duration.)"""
 
         # note should be able to be one of strings, lists, Notes or
         # NoteContainers
+        if self.place_notes_at(notes, duration, self.current_beat):
+            self.current_beat += 1.0 / duration
+            return True
 
+        return False
+
+
+    def place_notes_at(self, notes, duration, at):
+        """Places notes at the index `at`"""
+
+        # FIXME: floating point operations like this are massively unsafe
+        #        thanks to rounding errors in the binary representation
+        if (at + 1.0 / duration) > self.length and self.length != 0.0:
+            # no room in bar at that location.
+            return False
+
+        # if possible, find a note container that already has this
+        # position and duration
+        nc = None
+        for x in self.bar:
+            if x[0] == at and x[1] == duration:
+                nc = x[2]
+
+        # Convert out input to the desired NoteContainer type
         if hasattr(notes, 'notes'):
             pass
         elif hasattr(notes, 'name'):
@@ -98,20 +121,14 @@ enough room for a note of that duration.)"""
             notes = NoteContainer(notes)
         elif type(notes) == list:
             notes = NoteContainer(notes)
-        if self.current_beat + 1.0 / duration <= self.length or self.length\
-             == 0.0:
-            self.bar.append([self.current_beat, duration, notes])
-            self.current_beat += 1.0 / duration
-            return True
+
+        # Create new beat or add notes to old nc
+        if nc is None:
+            self.bar.append([at, duration, notes])
         else:
-            return False
+            nc += notes
 
-    def place_notes_at(self, notes, at):
-        """Places notes at the index `at`"""
-
-        for x in self.bar:
-            if x[0] == at:
-                x[0][2] += notes
+        return True
 
     def place_rest(self, duration):
         """Places a rest of `duration` on the `current_beat`. The same as \
@@ -151,6 +168,20 @@ Bar"""
                     cur = x[0][1]
                     x[0][1] = to
                     diff = 1 / cur - 1 / to
+
+    def get_notes_playing_at(self, at):
+        nc = NoteContainer()
+        for x in self.bar:
+            if x[0] <= at and (x[0] + (1./x[1])) > at:
+                nc += x[2]
+        return nc
+
+    def get_notes_starting_at(self, at):
+        nc = NoteContainer()
+        for x in self.bar:
+            if x[0] == at:
+                nc += x[2]
+        return nc
 
     def get_range(self):
         """Returns the highest and the lowest note in a tuple"""

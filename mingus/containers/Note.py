@@ -173,6 +173,7 @@ octave."""
         else:
             if self > Note(old, o_octave):
                 self.octave -= 1
+        return self
 
     def from_int(self, integer):
         """Sets the Note corresponding to the integer. 0 is a C on octave 0, 12 is \
