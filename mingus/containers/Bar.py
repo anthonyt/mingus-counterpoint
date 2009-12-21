@@ -79,6 +79,23 @@ a !MeterFormatError will be raised."""
                 "The meter argument '%s' is not an understood representation of a meter. Expecting a tuple."\
                  % meter
 
+    def fill_with_rests(self):
+        """Fills whatever space in this bar isn't currently used by
+NoteContainers with None.
+Assumes that all entries in self.bar are in chronological order."""
+        last_beat = 0.0
+        for x in self.bar[:]:
+            start, duration, notes = x
+
+            if start > last_beat:
+                nc = NoteContainer([])
+                rest_duration = int(1./(start - last_beat))
+                rest = [last_beat, rest_duration, nc]
+                index = self.bar.index(x)
+                self.bar.insert(index, rest)
+
+            last_beat = start + 1./duration
+
     def place_notes(self, notes, duration):
         """Places the notes on the `current_beat`. Notes can be strings, \
 [refMingusContainersNote Notes], list of strings, list of \

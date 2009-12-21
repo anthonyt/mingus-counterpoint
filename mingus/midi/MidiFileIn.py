@@ -281,6 +281,7 @@ class MidiFile:
 
             # add the bars to the track, in order
             for b in bars:
+                b.fill_with_rests()
                 t + b
 
             # add the track to the composition
