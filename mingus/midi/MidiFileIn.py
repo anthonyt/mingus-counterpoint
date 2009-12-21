@@ -79,93 +79,123 @@ class MidiFile:
             print "Don't know how to parse this yet"
             return c
         ticks_per_beat = header[2]['ticks_per_beat']
+
         for track in track_data:
-            t = Track()
-            b = Bar()
             metronome = 1  # Tick once every quarter note
             thirtyseconds = 8  # 8 thirtyseconds in a quarter note
+
             meter = (4, 4)
             key = 'C'
-            for e in track:
-                (deltatime, event) = e
+            bar = 0
+            b = None
+            beat = 0.0
+            now = (bar, beat)
+
+            started_notes = {}
+            finished_notes = {}
+            b = Bar(key=key, meter=meter)
+            bars = [b]
+
+            bpm = None
+            instrument = None
+            track_name = None
+
+            for deltatime, event in track:
                 duration = float(deltatime) / (ticks_per_beat * 4.0)
                 if duration != 0.0:
                     duration = 1.0 / duration
-                if deltatime != 0:
-                    if not b.place_notes(NoteContainer(), duration):
-                        t + b
-                        b = Bar(key, meter)
-                        b.place_notes(NoteContainer(), duration)
+
+                    o_bar = bar
+                    c_beat = beat + duration
+                    bar += int(c_beat / b.length)
+                    beat = c_beat % b.length
+
+                    while o_bar < bar:
+                        o_bar += 1
+                        o_key = b.key
+                        b = Bar(key=key, meter=meter)
+                        b.key = o_key
+                        bars.append(b)
+
+                    now = (bar, beat)
 
                 if event['event'] == 8:
-                    if deltatime == 0:
-                        pass
+                # note off
+                    channel = event['channel']
+                    note_int = event['param1']
+                    velocity = event['param2']
+                    note_name = notes.int_to_note(note_int % 12)
+                    octave = note_int / 12 - 1
+
+                    note = Note(note_name, octave)
+                    note.channel = channel
+                    note.velocity = velocity
+
+                    x = (channel, note_int)
+                    start_time = started_notes[x]
+                    del started_notes[x]
+                    end_time = now
+
+                    y = (start_time, end_time)
+                    if y not in finished_notes:
+                        finished_notes[y] = []
+
+                    finished_notes[y].append(note)
+
                 elif event['event'] == 9:
-
                 # note on
+                    channel = event['channel']
+                    note_int = event['param1']
+                    velocity = event['param2']
+                    x = (channel, note_int)
 
-                    n = Note(notes.int_to_note(event['param1'] % 12),
-                             event['param1'] / 12 - 1)
-                    n.channel = event['channel']
-                    n.velocity = event['param2']
-                    if len(b.bar) > 0:
-                        b.bar[-1][2] + n
-                    else:
-                        b + n
+                    # add the note to the current NoteContainer
+                    started_notes[x] = now
+
                 elif event['event'] == 10:
-
                 # note aftertouch
-
                     pass
+
                 elif event['event'] == 11:
-
                 # controller select
-
                     pass
+
                 elif event['event'] == 12:
-
                 # program change
-
+                # WARNING: only the last change in instrument will get saved.
                     i = MidiInstrument()
                     i.instrument_nr = event['param1']
-                    t.instrument = i
+                    instrument = i
+
                 elif event['event'] == 0x0f:
-
                 # meta event Text
-
                     if event['meta_event'] == 1:
                         pass
+
                     elif event['meta_event'] == 3:
-
                     # Track name
+                        track_name = event['data']
 
-                        t.name = event['data']
                     elif event['meta_event'] == 6:
-
                     # Marker
-
                         pass
+
                     elif event['meta_event'] == 7:
-
                     # Cue Point
-
                         pass
+
                     elif event['meta_event'] == 47:
-
                     # End of Track
-
                         pass
+
                     elif event['meta_event'] == 81:
-
-                    # Set tempo warning Only the last change in bpm will get
-                    # saved currently
-
+                    # Set tempo
+                    # WARNING: Only the last change in bpm will get saved
                         mpqn = self.bytes_to_int(event['data'])
                         bpm = 60000000 / mpqn
+
                     elif event['meta_event'] == 88:
-
                     # Time Signature
-
                         d = event['data']
                         thirtyseconds = self.bytes_to_int(d[3])
                         metronome = self.bytes_to_int(d[2]) / 24.0
@@ -173,10 +203,9 @@ class MidiFile:
                         numer = self.bytes_to_int(d[0])
                         meter = (numer, denom)
                         b.set_meter(meter)
+
                     elif event['meta_event'] == 89:
-
                     # Key Signature
-
                         d = event['data']
                         sharps = self.bytes_to_int(d[0])
                         minor = self.bytes_to_int(d[0])
@@ -190,12 +219,36 @@ class MidiFile:
                             else:
                                 key = intervals.major_fifth(key)
                         b.key = Note(key)
+
                     else:
                         print 'Unsupported META event', event['meta_event']
+
                 else:
                     print 'Unsupported MIDI event', event
-            t + b
+
+            t = Track(instrument)
+            t.name = track_name
+
+            for x in finished_notes:
+                (start_bar, start_beat), (end_bar, end_beat) = x
+                if end_beat == 0:
+                    end_bar -= 1
+                    end_beat = bars[end_bar].length
+
+                while start_bar < end_bar:
+                    nc = NoteContainer(finished_notes[x])
+                    b = bars[start_bar]
+                    b.place_notes_at(nc, b.length - start_beat, start_beat)
+                    start_beat = 0
+                    start_bar += 1
+
+                nc = NoteContainer(finished_notes[x])
+                bars[start_bar].place_notes_at(nc, end_beat - start_beat, start_beat)
+
+            for b in bars:
+                t + b
             c.tracks.append(t)
+
         return (c, bpm)
 
     def parse_midi_file_header(self, fp):
@@ -435,3 +488,4 @@ if __name__ == '__main__':
     fluidsynth.init()
     (m, bpm) = MIDI_to_Composition(argv[1])
     MidiFileOut.write_Composition('test.mid', m, bpm)
+
