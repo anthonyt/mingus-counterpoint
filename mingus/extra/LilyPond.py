@@ -173,9 +173,9 @@ the key and the time should be shown."""
     # Process the time
 
     if showtime:
-        return '{ \\time %d/%d %s}' % (bar.meter[0], bar.meter[1], result)
+        return '{ \\time %d/%d %s} \\bar "|" ' % (bar.meter[0], bar.meter[1], result)
     else:
-        return '{ %s}' % result
+        return '{ %s} \\bar "|" ' % result
 
 
 def from_Track(track):
@@ -225,7 +225,10 @@ Composition] in a string"""
     result += '\\new StaffGroup << '
 
     for track in composition.tracks:
-        result += from_Track(track) + ' '
+        for bar in track.bars:
+            if bar:
+                result += from_Track(track) + ' '
+                break
 
     result += '>> '
     return result[:-1]
