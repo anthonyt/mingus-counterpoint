@@ -81,15 +81,20 @@ class MidiFile:
         ticks_per_beat = header[2]['ticks_per_beat']
 
         for track in track_data:
+            # this loop will gather data for all notes,
+            # set up keys and time signatures for all bars
+            # and set the tempo and instrument for the track.
+
             metronome = 1  # Tick once every quarter note
             thirtyseconds = 8  # 8 thirtyseconds in a quarter note
+            step = 256.0 # WARNING: Assumes our smallest desired quantization step is a 256th note.
 
             meter = (4, 4)
             key = 'C'
             bar = 0
-            b = None
-            beat = 0.0
+            beat = 0
             now = (bar, beat)
+            b = None
 
             started_notes = {}
             finished_notes = {}
@@ -101,14 +106,16 @@ class MidiFile:
             track_name = None
 
             for deltatime, event in track:
-                duration = float(deltatime) / (ticks_per_beat * 4.0)
-                if duration != 0.0:
-                    duration = 1.0 / duration
+                if deltatime != 0:
+                    duration = (ticks_per_beat * 4.0) / float(deltatime)
+
+                    dur_q = int(round(step/duration))
+                    length_q = int(b.length * step)
 
                     o_bar = bar
-                    c_beat = beat + duration
-                    bar += int(c_beat / b.length)
-                    beat = c_beat % b.length
+                    c_beat = beat + dur_q
+                    bar += int(c_beat / length_q)
+                    beat = c_beat % length_q
 
                     while o_bar < bar:
                         o_bar += 1
@@ -192,6 +199,7 @@ class MidiFile:
                     # Set tempo
                     # WARNING: Only the last change in bpm will get saved
                         mpqn = self.bytes_to_int(event['data'])
+                        bpm_o = bpm
                         bpm = 60000000 / mpqn
 
                     elif event['meta_event'] == 88:
@@ -229,24 +237,53 @@ class MidiFile:
             t = Track(instrument)
             t.name = track_name
 
+            sorted_notes = {}
+
+            # sort the notes (so they are added to the bars in order)
+            # this loop will also split up notes that span more than one bar.
             for x in finished_notes:
                 (start_bar, start_beat), (end_bar, end_beat) = x
                 if end_beat == 0:
                     end_bar -= 1
-                    end_beat = bars[end_bar].length
+                    end_beat = int(bars[end_bar].length * step)
 
-                while start_bar < end_bar:
+                while start_bar <= end_bar:
                     nc = NoteContainer(finished_notes[x])
                     b = bars[start_bar]
-                    b.place_notes_at(nc, b.length - start_beat, start_beat)
+
+                    if start_bar < end_bar:
+                        # only executes when note spans more than one bar.
+                        length_q = int(b.length * step)
+                        dur = int(step/(length_q - start_beat))
+                    else:
+                        # always executes - add the final section of this note.
+                        dur = int(step/(end_beat-start_beat))
+
+                    if start_beat != 0:
+                        at = float(start_beat)/step
+                    else:
+                        at = 0.0
+
+                    if start_bar not in sorted_notes:
+                        sorted_notes[start_bar] = {}
+                    if at not in sorted_notes[start_bar]:
+                        sorted_notes[start_bar][at] = (dur, nc)
+
+                    # set our offsets for the next loop
                     start_beat = 0
                     start_bar += 1
 
-                nc = NoteContainer(finished_notes[x])
-                bars[start_bar].place_notes_at(nc, end_beat - start_beat, start_beat)
+            # add all notes to all bars in order.
+            for start_bar in sorted(sorted_notes.keys()):
+                for at in sorted(sorted_notes[start_bar].keys()):
+                    dur, nc = sorted_notes[start_bar][at]
+                    bars[start_bar].place_notes_at(nc, dur, at)
 
+            # add the bars to the track, in order
             for b in bars:
                 t + b
+
+            # add the track to the composition
             c.tracks.append(t)
 
         return (c, bpm)
