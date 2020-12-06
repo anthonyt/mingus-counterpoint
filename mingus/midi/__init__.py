@@ -23,8 +23,8 @@
 ================================================================================
 """
 
-from Sequencer import Sequencer
-from SequencerObserver import SequencerObserver
+from mingus.midi.Sequencer import Sequencer
+from mingus.midi.SequencerObserver import SequencerObserver
 __all__ = [
     'Sequencer',
     'SequencerObserver',
