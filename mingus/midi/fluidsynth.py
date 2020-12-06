@@ -41,7 +41,7 @@
 
 from mingus.midi.Sequencer import Sequencer
 from mingus.containers.Instrument import MidiInstrument
-import pyFluidSynth as fs
+from . import pyFluidSynth as fs
 import time
 import wave
 

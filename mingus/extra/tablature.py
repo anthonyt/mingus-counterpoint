@@ -150,8 +150,7 @@ one."""
                 d = (w - d / 2) - len(fret)
                 result[i] += '-' * d + '|'
     else:
-        raise RangeError, \
-            "No fret found that could play note '%s'. Note out of range." % note
+        raise RangeError("No fret found that could play note '%s'. Note out of range." % note)
     result.reverse()
     return os.linesep.join(result)
 
@@ -216,7 +215,7 @@ fingering is valid, it will get used instead of the default one."""
                 # Produce ASCII
 
         for i in range(len(result)):
-            if i not in res.keys():
+            if i not in list(res.keys()):
                 result[i] += '-' * w + '|'
             else:
                 d = w - len(res[i])
@@ -224,7 +223,7 @@ fingering is valid, it will get used instead of the default one."""
                 d = (w - d / 2) - len(res[i])
                 result[i] += '-' * d + '|'
     else:
-        raise FingerError, 'No playable fingering found for: %s' % notes
+        raise FingerError('No playable fingering found for: %s' % notes)
     result.reverse()
     return os.linesep.join(result)
 
@@ -309,12 +308,12 @@ certain fingerings."""
 
             for i in range(len(result)):
                 dur = int(((1.0 / duration) * qsize) * 4) - maxlen
-                if i not in d.keys():
+                if i not in list(d.keys()):
                     result[i] += '-' * maxlen + '-' * dur
                 else:
                     result[i] += ('%' + str(maxlen) + 's') % d[i] + '-' * dur
         else:
-            raise FingerError, 'No playable fingering found for: %s' % notes
+            raise FingerError('No playable fingering found for: %s' % notes)
 
         # Padding at the end
 
@@ -398,7 +397,7 @@ given. Tunings can be set by using the `Track.instrument.tuning` or \
         for tracks in composition:
             tuning = tracks.get_tuning()
             ascii = []
-            for x in xrange(bars):
+            for x in range(bars):
                 if barindex + x < len(tracks):
                     bar = tracks[barindex + x]
                     r = from_Bar(bar, w, tuning, collapse=False)

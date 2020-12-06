@@ -50,8 +50,8 @@ class test_diatonic(unittest.TestCase):
             }
 
     def test_get_notes(self):
-        map(lambda x: self.assertEqual(self.scale[x], diatonic.get_notes(x),
-            'Invalid notes for key %s' % self.scale[x]), self.scale.keys())
+        list(map(lambda x: self.assertEqual(self.scale[x], diatonic.get_notes(x),
+            'Invalid notes for key %s' % self.scale[x]), list(self.scale.keys())))
 
     def test_interval(self):
         self.assertEqual('D', diatonic.interval('C', 'C', 1))

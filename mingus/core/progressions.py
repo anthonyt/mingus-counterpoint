@@ -35,9 +35,9 @@
 ================================================================================
 """
 
-import notes
-import chords
-import intervals
+from . import notes
+from . import chords
+from . import intervals
 numerals = [
     'I',
     'II',
@@ -98,10 +98,10 @@ use Idom7."""
             r = chords.chord_shorthand[suffix](r[0])
 
         while acc < 0:
-            r = map(notes.diminish, r)
+            r = list(map(notes.diminish, r))
             acc += 1
         while acc > 0:
-            r = map(notes.augment, r)
+            r = list(map(notes.augment, r))
             acc -= 1
         result.append(r)
     return result

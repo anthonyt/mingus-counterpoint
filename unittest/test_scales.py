@@ -17,9 +17,9 @@ class test_scales(unittest.TestCase):
         scale_func,
         name,
         ):
-        map(lambda x: self.assertEqual(answer_dict[x], scale_func(x),
+        list(map(lambda x: self.assertEqual(answer_dict[x], scale_func(x),
             'The %s of %s is not %s, expecting %s' % (name, x, scale_func(x),
-            answer_dict[x])), answer_dict.keys())
+            answer_dict[x])), list(answer_dict.keys())))
 
     def test_diatonic(self):
         self.scaleTest({'C': [

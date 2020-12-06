@@ -24,7 +24,7 @@
 """
 
 from mingus.containers.Note import Note
-from mt_exceptions import UnexpectedObjectError
+from .mt_exceptions import UnexpectedObjectError
 
 
 class Instrument:
@@ -55,9 +55,8 @@ examples)."""
             range[0] = Note(range[0])
             range[1] = Note(range[1])
         if not hasattr(range[0], 'name'):
-            raise UnexpectedObjectError, \
-                "Unexpected object '%s'. Expecting a mingus.containers.Note object"\
-                 % range[0]
+            raise UnexpectedObjectError("Unexpected object '%s'. Expecting a mingus.containers.Note object"\
+                 % range[0])
         self.range = range
 
     def note_in_range(self, note):
@@ -67,9 +66,8 @@ so, `False` otherwise"""
         if type(note) == str:
             note = Note(note)
         if not hasattr(note, 'name'):
-            raise UnexpectedObjectError, \
-                "Unexpected object '%s'. Expecting a mingus.containers.Note object"\
-                 % note
+            raise UnexpectedObjectError("Unexpected object '%s'. Expecting a mingus.containers.Note object"\
+                 % note)
         if note >= self.range[0] and note <= self.range[1]:
             return True
         return False

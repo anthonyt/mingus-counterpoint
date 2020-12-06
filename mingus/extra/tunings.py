@@ -203,9 +203,9 @@ more than `find_fingering`. For example: {{{
         def make_lookup_table():
             """Prepare the lookup table. table[string][fret] = (name, dest_frets)"""
 
-            res = [[[] for x in xrange(maxfret + 2)] for x in
-                   xrange(len(self.tuning) - 1)]
-            for x in xrange(0, len(self.tuning) - 1):
+            res = [[[] for x in range(maxfret + 2)] for x in
+                   range(len(self.tuning) - 1)]
+            for x in range(0, len(self.tuning) - 1):
                 addedNone = -1
                 next = fretdict[x + 1]
                 for (fret, name) in fretdict[x]:
@@ -239,7 +239,7 @@ more than `find_fingering`. For example: {{{
                 # Make string-fret dictionary
 
         fretdict = []
-        for x in xrange(0, len(self.tuning)):
+        for x in range(0, len(self.tuning)):
             fretdict.append(self.find_note_names(notes, x, maxfret))
 
                 # Build table
@@ -342,7 +342,7 @@ Notelist should be a list of Notes, note-strings or a NoteContainer.
                 # Base of the string
 
         s = int(self.tuning[string]) % 12
-        for x in xrange(0, maxfret + 1):
+        for x in range(0, maxfret + 1):
             if (s + x) % 12 in int_notes:
                 result.append((x, names[int_notes.index((s + x) % 12)]))
         return result
@@ -375,10 +375,10 @@ fret or string is unplayable.
                 n.fret = fret
                 return n
             else:
-                raise RangeError, "Fret '%d' on string '%d' is out of range"\
-                     % (string, fret)
+                raise RangeError("Fret '%d' on string '%d' is out of range"\
+                     % (string, fret))
         else:
-            raise RangeError, "String '%d' out of range" % string
+            raise RangeError("String '%d' out of range" % string)
 
 
 # The index
@@ -398,7 +398,7 @@ courses. For example:
 }}}"""
 
     t = StringTuning(instrument, description, tuning)
-    if _known.has_key(str.upper(instrument)):
+    if str.upper(instrument) in _known:
         _known[str.upper(instrument)][1][str.upper(description)] = t
     else:
         _known[str.upper(instrument)] = (instrument,
@@ -421,11 +421,11 @@ search for 'bass' is the same is 'Bass Guitar'.
 
     searchi = str.upper(instrument)
     searchd = str.upper(description)
-    keys = _known.keys()
+    keys = list(_known.keys())
     for x in keys:
         if searchi not in keys and x.find(searchi) == 0 or searchi in keys and x\
              == searchi:
-            for (desc, tun) in _known[x][1].iteritems():
+            for (desc, tun) in _known[x][1].items():
                 if desc.find(searchd) == 0:
                     if nr_of_strings is None and nr_of_courses is None:
                         return tun
@@ -455,21 +455,21 @@ string 'ba' yields all the instruments starting with 'ba'.
     if instrument is not None:
         search = str.upper(instrument)
     result = []
-    keys = _known.keys()
+    keys = list(_known.keys())
     inkeys = search in keys
     for x in keys:
         if instrument is None or not inkeys and x.find(search) == 0 or inkeys\
              and search == x:
             if nr_of_strings is None and nr_of_courses is None:
-                result += _known[x][1].values()
+                result += list(_known[x][1].values())
             elif nr_of_strings is not None and nr_of_courses is None:
-                result += [y for y in _known[x][1].itervalues()
+                result += [y for y in _known[x][1].values()
                            if y.count_strings() == nr_of_strings]
             elif nr_of_strings is None and nr_of_courses is not None:
-                result += [y for y in _known[x][1].itervalues()
+                result += [y for y in _known[x][1].values()
                            if y.count_courses() == nr_of_courses]
             else:
-                result += [y for y in _known[x][1].itervalues()
+                result += [y for y in _known[x][1].values()
                            if y.count_strings() == nr_of_strings
                             and y.count_courses() == nr_of_courses]
     return result

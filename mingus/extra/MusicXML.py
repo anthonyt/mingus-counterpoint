@@ -43,6 +43,7 @@ from mingus.containers.Composition import Composition
 from mingus.containers.Track import Track
 from mingus.core import value
 import datetime
+from functools import reduce
 
 
 def _gcd(a=None, b=None, terms=None):
@@ -175,7 +176,7 @@ def _bar2musicxml(bar):
             dot = doc.createElement('dot')
             for i in range(0, time[1]):
                 note.appendChild(dot)
-            if beat in value.musicxml.keys():
+            if beat in list(value.musicxml.keys()):
                 type_node = doc.createElement('type')
                 type_node.appendChild(doc.createTextNode(value.musicxml[beat]))
                 note.appendChild(type_node)
@@ -352,12 +353,12 @@ def write_Composition(composition, filename, zip=False):
         zf = zipfile.ZipFile(filename + '.mxl', mode='w',
                              compression=zipfile.ZIP_DEFLATED)
         zi = zipfile.ZipInfo('META-INF' + os.sep + 'container.xml')
-        zi.external_attr = 0660 << 16L
+        zi.external_attr = 0o660 << 16
         zf.writestr(zi,
                     "<?xml version='1.0' encoding='UTF-8'?><container><rootfiles><rootfile full-path='"
                      + filename + ".xml'/></rootfiles></container>")
         zi = zipfile.ZipInfo(filename + '.xml')
-        zi.external_attr = 0660 << 16L
+        zi.external_attr = 0o660 << 16
         zf.writestr(zi, text)
         zf.close()
 

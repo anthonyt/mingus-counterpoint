@@ -422,7 +422,7 @@ the instrument will be set automatically."""
         self.notify_listeners(self.MSG_PLAY_COMPOSITION, {'composition'
                               : composition, 'channels': channels, 'bpm': bpm})
         if channels == None:
-            channels = map(lambda x: x + 1, range(len(composition.tracks)))
+            channels = [x + 1 for x in range(len(composition.tracks))]
         return self.play_Tracks(composition.tracks, channels, bpm)
 
     def modulation(self, channel, value):

@@ -29,8 +29,8 @@
 ================================================================================
 """
 
-from mt_exceptions import NoteFormatError, KeyError, RangeError
-import notes
+from .mt_exceptions import NoteFormatError, KeyError, RangeError
+from . import notes
 basic_keys = [
     'Gb',
     'Db',
@@ -63,10 +63,10 @@ This function will raise an !NoteFormatError if the key isn't recognised"""
     # check cache
 
     global key_dict
-    if _key_cache.has_key(key):
+    if key in _key_cache:
         return _key_cache[key]
     if not notes.is_valid_note(key):
-        raise NoteFormatError, "Unrecognised format for key '%s'" % key
+        raise NoteFormatError("Unrecognised format for key '%s'" % key)
     fifth_index = notes.fifths.index(key[0])
     result = []
 
@@ -87,7 +87,7 @@ This function will raise an !NoteFormatError if the key isn't recognised"""
 
     # Remove redundant #'s and b's from the result
 
-    result = map(notes.remove_redundant_accidentals, result)
+    result = list(map(notes.remove_redundant_accidentals, result))
     tonic = result.index(notes.remove_redundant_accidentals(key))
     result = result[tonic:] + result[:tonic]
 
@@ -103,8 +103,8 @@ notes] module. This version bears the key in mind and thus creates \
 theoretically correct notes. Will throw a !RangeError if `note_int` is not \
 in range(0,12)"""
 
-    if note_int not in range(0, 12):
-        raise RangeError, 'Integer not in range 0-11.'
+    if note_int not in list(range(0, 12)):
+        raise RangeError('Integer not in range 0-11.')
     intervals = [
         0,
         2,
@@ -115,7 +115,7 @@ in range(0,12)"""
         11,
         ]
     current = notes.note_to_int(key)
-    known_intervals = map(lambda x: (x + current) % 12, intervals)
+    known_intervals = [(x + current) % 12 for x in intervals]
     known_notes = get_notes(key)
     if note_int in known_intervals:
         return known_notes[known_intervals.index(note_int)]
@@ -134,7 +134,7 @@ key. For example interval('C', 'D', 1) will return 'E'. Will raise a \
 !KeyError if the start_note is not a valid note."""
 
     if not notes.is_valid_note(start_note):
-        raise KeyError, "The start note '%s' is not a valid note" % start_note
+        raise KeyError("The start note '%s' is not a valid note" % start_note)
     notes_in_key = get_notes(key)
     for n in notes_in_key:
         if n[0] == start_note[0]:

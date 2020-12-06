@@ -101,10 +101,10 @@ from_shorthand (a lot) and their inversions.
 
 ================================================================================"""
 
-import intervals
-import notes
-import diatonic
-from mt_exceptions import NoteFormatError, FormatError
+from . import intervals
+from . import notes
+from . import diatonic
+from .mt_exceptions import NoteFormatError, FormatError
 
 _triads_cache = {}
 
@@ -181,9 +181,9 @@ def triad(note, key):
 def triads(key):
     """Returns all the triads in key. Implemented using a cache."""
 
-    if _triads_cache.has_key(key):
+    if key in _triads_cache:
         return _triads_cache[key]
-    res = map(lambda x: triad(x, key), diatonic.get_notes(key))
+    res = [triad(x, key) for x in diatonic.get_notes(key)]
     _triads_cache[key] = res
     return res
 
@@ -247,9 +247,9 @@ def seventh(note, key):
 def sevenths(key):
     """Returns all the sevenths chords in key in a list"""
 
-    if _sevenths_cache.has_key(key):
+    if key in _sevenths_cache:
         return _sevenths_cache[key]
-    res = map(lambda x: seventh(x, key), diatonic.get_notes(key))
+    res = [seventh(x, key) for x in diatonic.get_notes(key)]
     _sevenths_cache[key] = res
     return res
 
@@ -889,8 +889,8 @@ etc.).
     # Get the note name
 
     if not notes.is_valid_note(shorthand_string[0]):
-        raise NoteFormatError, "Unrecognised note '%s' in chord '%s'"\
-             % (shorthand_string[0], shorthand_string)
+        raise NoteFormatError("Unrecognised note '%s' in chord '%s'"\
+             % (shorthand_string[0], shorthand_string))
     name = shorthand_string[0]
 
     # Look for accidentals
@@ -929,7 +929,7 @@ etc.).
     shorthand_start = len(name)
 
     short_chord = shorthand_string[shorthand_start:]
-    if chord_shorthand.has_key(short_chord):
+    if short_chord in chord_shorthand:
         res = chord_shorthand[short_chord](name)
         if slash != None:
 
@@ -939,9 +939,8 @@ etc.).
                 if notes.is_valid_note(slash):
                     res = [slash] + res
                 else:
-                    raise NoteFormatError, \
-                        "Unrecognised note '%s' in slash chord'%s'" % (slash,
-                            slash + shorthand_string)
+                    raise NoteFormatError("Unrecognised note '%s' in slash chord'%s'" % (slash,
+                            slash + shorthand_string))
             elif type(slash) == list:
 
             # Add polychords
@@ -953,7 +952,7 @@ etc.).
                 return r
         return res
     else:
-        raise FormatError, 'Unknown shorthand: %s' % shorthand_string
+        raise FormatError('Unknown shorthand: %s' % shorthand_string)
 
 
 def determine(
@@ -1432,9 +1431,9 @@ based on two triads to 6 note extended chords."""
     elif len(chord) > 14:
         return []
     elif len(chord) - 3 <= 5:
-        function_nr = range(0, len(chord) - 3)
+        function_nr = list(range(0, len(chord) - 3))
     else:
-        function_nr = range(0, 5)
+        function_nr = list(range(0, 5))
     for f in function_nr:
         for f2 in function_nr:
 

@@ -28,7 +28,7 @@
 ================================================================================
 """
 
-from MidiTrack import MidiTrack
+from .MidiTrack import MidiTrack
 from binascii import a2b_hex
 
 
@@ -69,16 +69,16 @@ class MidiFile:
         try:
             f = open(file, 'wb')
         except:
-            print "Couldn't open '%s' for writing." % file
+            print("Couldn't open '%s' for writing." % file)
             return False
         try:
             f.write(dat)
         except:
-            print 'An error occured while writing data to %s.' % file
+            print('An error occured while writing data to %s.' % file)
             return False
         f.close()
         if verbose:
-            print 'Written %d bytes to %s.' % (len(dat), file)
+            print('Written %d bytes to %s.' % (len(dat), file))
         return True
 
 

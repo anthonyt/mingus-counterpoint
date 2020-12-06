@@ -34,7 +34,7 @@
 from binascii import a2b_hex
 from struct import pack, unpack
 from math import log
-from MidiEvents import *
+from .MidiEvents import *
 from mingus.core.diatonic import basic_keys
 from mingus.containers.Note import Note
 

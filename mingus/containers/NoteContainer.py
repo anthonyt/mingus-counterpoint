@@ -23,9 +23,9 @@
 ================================================================================
 """
 
-from Note import Note
+from .Note import Note
 from mingus.core import intervals, chords, progressions
-from mt_exceptions import UnexpectedObjectError
+from .mt_exceptions import UnexpectedObjectError
 
 
 class NoteContainer:
@@ -66,9 +66,8 @@ and dynamics arguments, or a Note object."""
                 else:
                     note = Note(note, self.notes[-1].octave, dynamics)
         if not hasattr(note, 'name'):
-            raise UnexpectedObjectError, \
-                "Object '%s' was not expected. Expecting a mingus.containers.Note object."\
-                 % note
+            raise UnexpectedObjectError("Object '%s' was not expected. Expecting a mingus.containers.Note object."\
+                 % note)
         if note not in self.notes:
             self.notes.append(note)
             self.notes.sort()
@@ -256,7 +255,7 @@ single strings or [refMingusContainersNote Note] objects."""
         elif hasattr(notes, 'name'):
             return self.remove_note(notes)
         else:
-            map(lambda x: self.remove_note(x), notes)
+            list(map(lambda x: self.remove_note(x), notes))
             return self.notes
 
     def remove_duplicate_notes(self):

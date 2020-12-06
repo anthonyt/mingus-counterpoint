@@ -23,7 +23,7 @@
 ================================================================================
 """
 
-from mt_exceptions import InstrumentRangeError
+from .mt_exceptions import InstrumentRangeError
 from mingus.containers.NoteContainer import NoteContainer
 from mingus.containers.Bar import Bar
 import mingus.core.value as value
@@ -66,9 +66,8 @@ the note turns out not to be within the range of the \
 
         if self.instrument != None:
             if not self.instrument.can_play_notes(note):
-                raise InstrumentRangeError, \
-                    "Note '%s' is not in range of the instrument (%s)" % (note,
-                        self.instrument)
+                raise InstrumentRangeError("Note '%s' is not in range of the instrument (%s)" % (note,
+                        self.instrument))
         if duration == None:
             duration = 4
 
@@ -224,9 +223,8 @@ if the value being set is not a [refMingusContainersBar \
 mingus.containers.Bar] object."""
 
         if not hasattr(value, 'bar'):
-            raise UnexpectedObjectError, \
-                "Unexpected object '%s', expecting a mingus.containers.Barobject"\
-                 % value
+            raise UnexpectedObjectError("Unexpected object '%s', expecting a mingus.containers.Barobject"\
+                 % value)
         self.bars[index] = value
 
     def __repr__(self):

@@ -23,8 +23,8 @@
 ================================================================================
 """
 
-import LilyPond
-from tunings import StringTuning
+from . import LilyPond
+from .tunings import StringTuning
 __all__ = [
     'LilyPond',
     'fft',

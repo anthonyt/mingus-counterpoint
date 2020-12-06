@@ -50,9 +50,9 @@
 ================================================================================
 """
 
-import intervals
-import notes
-from diatonic import get_notes
+from . import intervals
+from . import notes
+from .diatonic import get_notes
 
 # The diatonic scales and its modes
 
@@ -196,7 +196,7 @@ def melodic_minor(note):
 
 
 def chromatic(note):
-    return map(lambda x: intervals.get_interval(note, x), range(0, 12))
+    return [intervals.get_interval(note, x) for x in range(0, 12)]
 
 
 def whole_note(note):

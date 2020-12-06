@@ -23,7 +23,7 @@
 """
 
 from mingus.core import notes, intervals
-from mt_exceptions import NoteFormatError
+from .mt_exceptions import NoteFormatError
 from math import log
 
 
@@ -66,8 +66,7 @@ group Notes together in intervals and chords."""
 
             self.from_int(name)
         else:
-            raise NoteFormatError, \
-                "Don't know what to do with name object: '%s'" % name
+            raise NoteFormatError("Don't know what to do with name object: '%s'" % name)
 
     def set_note(
         self,
@@ -87,9 +86,8 @@ NoteFormatError otherwise."""
                 self.dynamics = dynamics
                 return self
             else:
-                raise NoteFormatError, \
-                    "The string '%s' is not a valid representationof a note in mingus"\
-                     % name
+                raise NoteFormatError("The string '%s' is not a valid representationof a note in mingus"\
+                     % name)
         elif len(dash_index) == 2:
             if notes.is_valid_note(dash_index[0]):
                 self.name = dash_index[0]
@@ -97,9 +95,8 @@ NoteFormatError otherwise."""
                 self.dynamics = dynamics
                 return self
             else:
-                raise NoteFormatError, \
-                    "The string '%s' is not a valid representationof a note in mingus"\
-                     % name
+                raise NoteFormatError("The string '%s' is not a valid representationof a note in mingus"\
+                     % name)
         return False
 
     def empty(self):

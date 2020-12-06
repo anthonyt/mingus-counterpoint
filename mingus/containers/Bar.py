@@ -25,9 +25,9 @@
 
 from mingus.core import meter as _meter
 from mingus.core import scales, progressions
-from NoteContainer import NoteContainer
-from Note import Note
-from mt_exceptions import MeterFormatError
+from .NoteContainer import NoteContainer
+from .Note import Note
+from .mt_exceptions import MeterFormatError
 
 
 class Bar:
@@ -75,9 +75,8 @@ a !MeterFormatError will be raised."""
             self.meter = (0, 0)
             self.length = 0.0
         else:
-            raise MeterFormatError, \
-                "The meter argument '%s' is not an understood representation of a meter. Expecting a tuple."\
-                 % meter
+            raise MeterFormatError("The meter argument '%s' is not an understood representation of a meter. Expecting a tuple."\
+                 % meter)
 
     def fill_with_rests(self):
         """Fills whatever space in this bar isn't currently used by
